@@ -9,12 +9,12 @@ package com.elevatorsimulation;
  */
 public class Main {
     /**
-     * The main method of the application. Creates an Elevator and a ButtonPresser
-     * and runs them in separate threads. The method then waits for the
-     * ButtonPresser to finish, at which time all the button presses will have
-     * occurred. After that, the Elevator is given a signal to terminate which will
-     * direct it to finish whatever is remaining in its queue. The method waits for
-     * the elevator to finish all its remaining requests and then the scorecard
+     * The main method of the application. Creates an Elevator object and a
+     * ButtonPresser object and runs them in separate threads. The method then waits
+     * for the ButtonPresser to finish, at which time all the button presses will
+     * have occurred. After that, the Elevator is given a signal to terminate which
+     * will direct it to finish whatever is remaining in its queue. The method waits
+     * for the elevator to finish all its remaining requests and then the scorecard
      * containing the elevator statistics is printed out.
      *
      * @param args any command line arguments (none currently)
@@ -40,7 +40,7 @@ public class Main {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-
+                    System.out.println("ShutdownHook interrupted.");
                 }
 
                 AsciiArt.printScorecard();
@@ -49,14 +49,17 @@ public class Main {
             }
         });
 
+        // Wait for all button presses to occur
         try {
             buttonPresserThread.join();
         } catch (InterruptedException e) {
             System.out.println("ButtonPresserThread.join() interrupted.");
         }
 
+        // Signal the elevator to stop after finishing all remaining requests
         myElevator.terminate();
 
+        // Wait for the elevator to finish the remaining requests
         try {
             elevatorThread.join();
         } catch (InterruptedException e) {

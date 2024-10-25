@@ -3,6 +3,14 @@ package com.elevatorsimulation;
 import java.util.logging.*;
 import java.util.HashSet;
 
+/**
+ * This class simulates an elevator. The Elevator can be kicked off in a thread
+ * and it will then loop continuously waiting for requests and processing
+ * existing requests.
+ *
+ * @author Michael Zigment
+ * @version 1.0
+ */
 public class Elevator implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(Elevator.class.getName());
     private volatile boolean running = true;
