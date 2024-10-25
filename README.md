@@ -49,9 +49,29 @@ This program requires that Maven is installed. See [here](https://maven.apache.o
 
 ## Usage
 
-The button presses
+The simulation is driven by a csv file that configures which button presses happen when. The configuration file is `src/main/resources/buttonPresser.csv` and can be edited to configure whatever button presses to run with. Each row in the csv file represents an event for a button press. The events in the csv file are sequentially executed using a delay time to sleep between events. The csv file contains three columns with the following meaning:
 
-Control-C should stop the program and still show the statistics for the requests up to that point in time.
+- Column 1 is the requested floor number. This is an integer. Negative numbers are valid and imply sublevel floors.
+- Column 2 is the requested direction. This is a string with valid values being "UP", "DOWN", or "NONE". A value of "NONE" implies an internal button press, whereas a value of "UP" or "DOWN" implies an external button press.
+- Column 3 is the delay time (in milliseconds) to wait before the event executes (relative to the stop time of the previous event).
+
+Here is an example of the contents of a `buttonPresser.csv` file:
+
+```
+2, NONE, 100
+4, DOWN, 100
+0, UP, 400
+```
+
+In this example, the following will happen:
+
+1. An internal button press for floor 2 will happen 100 milliseconds after the start of the run.
+2. An external button press of the DOWN button on floor 4 will happen 100 milliseconds after the previous event (100 + 100).
+3. An external button press of the UP button on floor 0 will happen 400 milliseconds after the previous event (100 + 100 + 400).
+
+The elevator will continue running until all button press events and all requests have been processed by the elevator.
+
+To exit the program before completion, `Control-C` should stop the program and still show the statistics for the requests up to that point in time.
 
 ## Scheduling Algorithm
 
