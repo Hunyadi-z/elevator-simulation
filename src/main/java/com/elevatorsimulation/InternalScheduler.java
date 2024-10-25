@@ -2,11 +2,10 @@ package com.elevatorsimulation;
 
 /**
  * InternalScheduler is an interface used by the Elevator class for determining
- * which floor the elevator should move to next. This scheduler is intended for
- * internally what a single elevator would be responsible for scheduling, as
- * opposed to an external controller that would be in charge of handing out
- * requests to multiple elevators that would then get scheduled internally for
- * each elevator.
+ * which floor the elevator should move to next. This scheduler is used for the
+ * internal scheduling that a single elevator is responsible for, as
+ * opposed to an external scheduler that would be in charge of handing out
+ * requests to multiple elevators.
  *
  * @author Michael Zigment
  * @version 1.0
