@@ -31,18 +31,15 @@ public class ButtonPresser implements Runnable {
     private final List<ButtonPressEvent> buttonPressEvents;
     private final Elevator myElevator;
 
-    private class ButtonPressEvent {
-        private final int floor;
-        private final Direction direction;
-        private final long delayBeforePressing; // milliseconds
+    private final class ButtonPressEvent {
+        public final Button button;
+        public final long delayBeforePressing; // milliseconds
 
         /**
-         * Class constructor specifying a requested floor, a requested direction (if
-         * any), and how long to wait after the previous event to execute the button
-         * press.
+         * Class constructor specifying the requested floor, the requested direction
+         * (NONE is allowed), and how long to wait after the previous event to execute
+         * the button press.
          *
-         * @param id                  an identifier to distinguish the elevator if there
-         *                            are multiple ones
          * @param floor               the requested floor for the button press
          * @param direction           the requested direction for the button press.
          *                            Setting to NONE will represent an internal button
@@ -53,39 +50,8 @@ public class ButtonPresser implements Runnable {
          *                            press
          */
         public ButtonPressEvent(int floor, Direction direction, long delayBeforePressing) {
-            this.floor = floor;
-            this.direction = direction;
+            button = new Button(floor, direction);
             this.delayBeforePressing = delayBeforePressing;
-        }
-
-        /**
-         * Returns the requested floor for the button press.
-         *
-         * @return the floor number that goes with the button press
-         */
-        public final int getFloor() {
-            return floor;
-        }
-
-        /**
-         * Returns the requested direction for the button press.
-         *
-         * @return the direction that goes with the button press. Returns NONE if no
-         *         direction was provided.
-         */
-        public final Direction getDirection() {
-            return direction;
-        }
-
-        /**
-         * Returns the delay time (in milliseconds) to wait after the previous event
-         * before the event executes.
-         *
-         * @return the time to wait (in milliseconds) after the previous event before
-         *         executing the button press
-         */
-        public final Long getDelayBeforeProcessing() {
-            return delayBeforePressing;
         }
 
         /**
@@ -93,15 +59,15 @@ public class ButtonPresser implements Runnable {
          * this button press event. The representation is subject to change, but the
          * following may be regarded as typical:
          * 
-         * "ButtonPressEvent{floor=1, direction=NONE, delayBeforePressing=500}"
+         * "ButtonPressEvent{button=Button{floor=1, direction=NONE},
+         * delayBeforePressing=500}"
          *
          * @return a string representation of the object
          */
         @Override
         public String toString() {
             return "ButtonPressEvent{" +
-                    "floor=" + floor +
-                    ", direction=" + direction +
+                    "button=" + button +
                     ", delayBeforePressing=" + delayBeforePressing +
                     '}';
         }
@@ -128,13 +94,9 @@ public class ButtonPresser implements Runnable {
     public void run() {
         try {
             for (ButtonPressEvent buttonPress : buttonPressEvents) {
-                Thread.sleep(buttonPress.getDelayBeforeProcessing());
+                Thread.sleep(buttonPress.delayBeforePressing);
 
-                if (buttonPress.getDirection() == Direction.NONE) {
-                    myElevator.pressInternalButton(buttonPress.getFloor());
-                } else {
-                    myElevator.pressExternalButton(buttonPress.getFloor(), buttonPress.getDirection());
-                }
+                myElevator.pressElevatorButton(buttonPress.button);
             }
         } catch (InterruptedException e) {
             LOGGER.info("Interrupted ButtonPresser");

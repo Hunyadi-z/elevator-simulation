@@ -86,5 +86,5 @@ The algorithm that this simulation is currently using is based on the [LOOK algo
 - [ ] Read in elevator configuration parameters from a file. Fields such as starting floor, time it takes to travel between floors, how long to wait for passengers to load.
 - [ ] Add maximum weight checks, but also a means of simulating weight in the elevator.
 - [ ] Simulate failure of the doors.
-- [ ] Add additional buttons that are not floor related, such as open/close doors, call for emergency.
+- [ ] Add additional buttons that are not floor related, such as open/close doors, call for emergency. Consider refactoring to an observer/listener pattern for the button behavior.
 - [ ] Implement safety features for an elevator.

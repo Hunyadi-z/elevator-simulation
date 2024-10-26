@@ -21,9 +21,7 @@ public class Elevator implements Runnable {
     private final int id;
     private int currentFloor;
     private boolean isMoving;
-    private HashSet<Integer> internalPressedButtons;
-    private HashSet<Integer> externalPressedUpButtons;
-    private HashSet<Integer> externalPressedDownButtons;
+    private HashSet<Button> pressedButtons;
     private InternalScheduler internalScheduler;
     private Doors doors;
     private StatsCollector statsCollector;
@@ -41,9 +39,7 @@ public class Elevator implements Runnable {
         this.currentFloor = currentFloor;
         isMoving = false;
         internalScheduler = new LookWithDirectionInternalScheduler(this);
-        internalPressedButtons = new HashSet<Integer>();
-        externalPressedUpButtons = new HashSet<Integer>();
-        externalPressedDownButtons = new HashSet<Integer>();
+        pressedButtons = new HashSet<Button>();
         doors = new Doors();
         statsCollector = new StatsCollector();
     }
@@ -135,84 +131,43 @@ public class Elevator implements Runnable {
     }
 
     /**
-     * Processes the pressing of an internal button by making a new request for the
-     * specified floor and handing it off to the scheduler. If the button for that
-     * floor has already been pressed, then nothing will happen.
-     *
-     * @param floorNumber the floor number that goes with the button press
-     */
-    public void pressInternalButton(int floorNumber) {
-        System.out.println("[BUTTON_PRESS] Pressing internal button for floor: "
-                + floorNumber);
-
-        if (buttonAlreadyPressed(floorNumber)) {
-            System.out.println("[BUTTON_PRESS] Internal button for floor "
-                    + floorNumber + " is already pressed. Ignoring request.");
-            return;
-        }
-
-        markButtonAsPressed(floorNumber);
-
-        Request request = new Request(floorNumber);
-        internalScheduler.addRequest(request);
-    }
-
-    /**
-     * Processes the pressing of an external button by making a new request for the
-     * specified floor and direction and handing it off to the scheduler. If the
+     * Processes the pressing of an elevator button by making a new request for the
+     * specified floor and direction and handing it off to the scheduler. A
+     * direction of NONE represents an internal button press. Anything other than
+     * NONE for direction represents an external button press. If the
      * button has already been pressed, then nothing will happen.
      *
-     * @param floorNumber the floor number that goes with the button press
-     * @param direction   the requested direction that goes with the button press
+     * @param button the button that was pressed which contains information for the
+     *               requested floor number and the requested direction
      */
-    public void pressExternalButton(int floorNumber, Direction direction) {
-        System.out.println("[BUTTON_PRESS] Pressing external button on floor: "
-                + floorNumber + ", direction: " + direction);
+    public void pressElevatorButton(Button button) {
+        System.out.println("[BUTTON_PRESS] Pressing button for floor: "
+                + button.floor + ", direction: " + button.direction);
 
-        if (buttonAlreadyPressed(floorNumber, direction)) {
-            System.out.println("[BUTTON_PRESS] External " + direction + " button for floor "
-                    + floorNumber + " is already pressed. Ignoring request.");
+        if (buttonAlreadyPressed(button)) {
+            System.out.println("[BUTTON_PRESS] Button for floor: "
+                    + button.floor + ", direction: " + button.direction
+                    + " is already pressed. Ignoring request.");
             return;
         }
 
-        markButtonAsPressed(floorNumber, direction);
+        markButtonAsPressed(button);
 
-        Request request = new Request(floorNumber, direction);
+        Request request = new Request(button.floor, button.direction);
         internalScheduler.addRequest(request);
     }
 
-    private synchronized boolean buttonAlreadyPressed(int floorNumber) {
-        return internalPressedButtons.contains(floorNumber);
+    private synchronized boolean buttonAlreadyPressed(Button button) {
+        return pressedButtons.contains(button);
     }
 
-    private synchronized boolean buttonAlreadyPressed(int floorNumber, Direction direction) {
-        if (direction == Direction.UP) {
-            return externalPressedUpButtons.contains(floorNumber);
-        } else {
-            return externalPressedDownButtons.contains(floorNumber);
-        }
-    }
-
-    private synchronized void markButtonAsPressed(int floorNumber) {
-        internalPressedButtons.add(floorNumber);
-    }
-
-    private synchronized void markButtonAsPressed(int floorNumber, Direction direction) {
-        if (direction == Direction.UP) {
-            externalPressedUpButtons.add(floorNumber);
-        } else {
-            externalPressedDownButtons.add(floorNumber);
-        }
+    private synchronized void markButtonAsPressed(Button button) {
+        pressedButtons.add(button);
     }
 
     private synchronized void clearButtonPress(int floorNumber, Direction direction) {
-        if (direction == Direction.UP) {
-            externalPressedUpButtons.remove(floorNumber);
-        } else if (direction == Direction.DOWN) {
-            externalPressedDownButtons.remove(floorNumber);
-        } else {
-            internalPressedButtons.remove(floorNumber);
-        }
+        Button button = new Button(floorNumber, direction);
+        pressedButtons.remove(button);
     }
 
     private Direction calculateMovementDirection(int destinationFloor) {
