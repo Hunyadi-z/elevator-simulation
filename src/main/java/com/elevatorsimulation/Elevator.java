@@ -233,11 +233,11 @@ public class Elevator implements Runnable {
             LOGGER.warning("Expected a request to exist, but instead got null.");
             return;
         }
+        statsCollector.addCompletedRequest(request);
+
         System.out.println("[ARRIVED] Destination reached. Floor: " + request.getFloorNumber());
 
         internalScheduler.removeRequest(request);
-
-        statsCollector.addCompletedRequest(request);
 
         clearButtonPress(request.getFloorNumber(), request.getDesiredDirection());
 
